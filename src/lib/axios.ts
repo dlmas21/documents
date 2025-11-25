@@ -18,13 +18,17 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // If URL starts with /api/, don't use baseURL (it's a local Next.js API route)
     if (config.url?.startsWith('/api/')) {
-      // For server-side requests, try to use full URL if available
-      // During build time, API routes are not available via HTTP, so this will fail
-      // and should be caught by try-catch in generateStaticParams
       if (typeof window === 'undefined') {
-        // Try to use server URL, but fallback to empty if not available
+        // Server-side: try to use server URL if available, otherwise use localhost
+        // Note: During build time, API routes are not available, errors should be caught
         const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
-        config.baseURL = serverUrl || '';
+        if (serverUrl) {
+          config.baseURL = serverUrl;
+        } else {
+          // Use localhost with port from env or default 8082
+          const port = process.env.PORT || process.env.NEXT_PUBLIC_PORT || '8082';
+          config.baseURL = `http://localhost:${port}`;
+        }
       } else {
         // Client-side: use relative URL
         config.baseURL = '';
@@ -51,15 +55,20 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // During build time, API routes are not available, so we get connection errors
-    // Provide a more helpful error message
-    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.message?.includes('Invalid URL')) {
+    // Only show "build time" message if we're actually in build phase
+    // Check if we're in build by looking for Next.js build indicators
+    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
+                       process.env.NEXT_PHASE === 'phase-development-build';
+    
+    if (isBuildTime && (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.message?.includes('Invalid URL'))) {
       const message = 'API route not available during build time';
       console.error('Axios error (build time):', message);
       return Promise.reject(new Error(message));
     }
+    
+    // For runtime errors, provide the actual error message
     const message = error?.response?.data?.message || error?.message || 'Something went wrong!';
-    console.error('Axios error:', message);
+    console.error('Axios error:', message, error.code ? `(${error.code})` : '');
     return Promise.reject(new Error(message));
   }
 );
