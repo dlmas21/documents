@@ -18,11 +18,13 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // If URL starts with /api/, don't use baseURL (it's a local Next.js API route)
     if (config.url?.startsWith('/api/')) {
-      // For server-side requests, use full URL
+      // For server-side requests, try to use full URL if available
+      // During build time, API routes are not available via HTTP, so this will fail
+      // and should be caught by try-catch in generateStaticParams
       if (typeof window === 'undefined') {
-        // Server-side: use localhost or the configured server URL
-        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8082';
-        config.baseURL = serverUrl;
+        // Try to use server URL, but fallback to empty if not available
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL;
+        config.baseURL = serverUrl || '';
       } else {
         // Client-side: use relative URL
         config.baseURL = '';
@@ -49,6 +51,13 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
+    // During build time, API routes are not available, so we get connection errors
+    // Provide a more helpful error message
+    if (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.message?.includes('Invalid URL')) {
+      const message = 'API route not available during build time';
+      console.error('Axios error (build time):', message);
+      return Promise.reject(new Error(message));
+    }
     const message = error?.response?.data?.message || error?.message || 'Something went wrong!';
     console.error('Axios error:', message);
     return Promise.reject(new Error(message));
