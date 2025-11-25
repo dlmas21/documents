@@ -29,6 +29,22 @@ jobs:
         env:
           NODE_OPTIONS: "--max-old-space-size=3072"
 
+      - name: Check secrets
+        run: |
+          if [ -z "${{ secrets.SSH_HOST }}" ]; then
+            echo "❌ Error: SSH_HOST secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SSH_USER }}" ]; then
+            echo "❌ Error: SSH_USER secret is not set"
+            exit 1
+          fi
+          if [ -z "${{ secrets.SSH_PRIVATE_KEY }}" ]; then
+            echo "❌ Error: SSH_PRIVATE_KEY secret is not set"
+            exit 1
+          fi
+          echo "✅ All secrets are configured"
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.3
         with:
