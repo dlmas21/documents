@@ -13,6 +13,20 @@ const axiosInstance = axios.create({
   },
 });
 
+// Interceptor to skip baseURL for local API routes
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // If URL starts with /api/, don't use baseURL (it's a local Next.js API route)
+    if (config.url?.startsWith('/api/')) {
+      config.baseURL = '';
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 /**
  * Optional: Add token (if using auth)
  *
