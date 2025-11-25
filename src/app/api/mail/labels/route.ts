@@ -1,8 +1,7 @@
 import type { NextRequest } from 'next/server';
+import type { IMailLabel } from 'src/types/mail';
 
 import { NextResponse } from 'next/server';
-
-import type { IMailLabel } from 'src/types/mail';
 
 // ----------------------------------------------------------------------
 

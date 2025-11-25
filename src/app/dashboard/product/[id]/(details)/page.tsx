@@ -37,17 +37,12 @@ export default async function Page({ params }: Props) {
  * NOTE: Remove all "generateStaticParams()" functions if not using static exports.
  */
 export async function generateStaticParams() {
-  try {
-    const res = await axios.get(endpoints.product.list);
-    const data: IProductItem[] = CONFIG.isStaticExport
-      ? res.data.products
-      : res.data.products.slice(0, 1);
+  const res = await axios.get(endpoints.product.list);
+  const data: IProductItem[] = CONFIG.isStaticExport
+    ? res.data.products
+    : res.data.products.slice(0, 1);
 
-    return data.map((product: IProductItem) => ({
-      id: product.id,
-    }));
-  } catch (error) {
-    console.error('Failed to generate static params for product details:', error);
-    return [];
-  }
+  return data.map((product: IProductItem) => ({
+    id: product.id,
+  }));
 }

@@ -1,15 +1,15 @@
 import type { NextRequest } from 'next/server';
+import type { IProductItem } from 'src/types/product';
 
 import { NextResponse } from 'next/server';
 
 import { _mock } from 'src/_mock/_mock';
 import {
-  PRODUCT_CATEGORY_OPTIONS,
+  PRODUCT_SIZE_OPTIONS,
   PRODUCT_COLOR_OPTIONS,
   PRODUCT_GENDER_OPTIONS,
-  PRODUCT_SIZE_OPTIONS,
+  PRODUCT_CATEGORY_OPTIONS,
 } from 'src/_mock/_product';
-import type { IProductItem } from 'src/types/product';
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ function generateMockProducts(): IProductItem[] {
       publish: index % 5 === 0 ? 'draft' : 'published',
       gender,
       coverUrl: _mock.image.product(index),
-      images: Array.from({ length: 3 }, (_, imgIndex) => _mock.image.product(index + imgIndex)),
+      images: Array.from({ length: 3 }, (__, imgIdx) => _mock.image.product(index + imgIdx)),
       colors,
       quantity: Math.floor(Math.random() * 100) + 10,
       category,
@@ -53,15 +53,15 @@ function generateMockProducts(): IProductItem[] {
       inventoryType: index % 3 === 0 ? 'low stock' : index % 4 === 0 ? 'out of stock' : 'in stock',
       subDescription: _mock.sentence(index),
       priceSale,
-      reviews: Array.from({ length: Math.min(totalReviews, 5) }, (_, reviewIndex) => ({
-        id: _mock.id(index + reviewIndex + 100),
-        name: _mock.fullName(index + reviewIndex),
+      reviews: Array.from({ length: Math.min(totalReviews, 5) }, (__, reviewIdx) => ({
+        id: _mock.id(index + reviewIdx + 100),
+        name: _mock.fullName(index + reviewIdx),
         rating: Math.floor(Math.random() * 3) + 3,
-        comment: _mock.sentence(index + reviewIndex),
+        comment: _mock.sentence(index + reviewIdx),
         helpful: Math.floor(Math.random() * 20),
-        avatarUrl: _mock.image.avatar(index + reviewIndex),
-        postedAt: _mock.time(index + reviewIndex),
-        isPurchased: reviewIndex % 2 === 0,
+        avatarUrl: _mock.image.avatar(index + reviewIdx),
+        postedAt: _mock.time(index + reviewIdx),
+        isPurchased: reviewIdx % 2 === 0,
       })),
       newLabel: {
         content: 'NEW',

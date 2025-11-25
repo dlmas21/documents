@@ -1,9 +1,9 @@
 import type { NextRequest } from 'next/server';
+import type { IMail } from 'src/types/mail';
 
 import { NextResponse } from 'next/server';
 
 import { _mock } from 'src/_mock/_mock';
-import type { IMail } from 'src/types/mail';
 
 // ----------------------------------------------------------------------
 

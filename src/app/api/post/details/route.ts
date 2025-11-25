@@ -1,19 +1,22 @@
 import type { NextRequest } from 'next/server';
+import type { IPostItem } from 'src/types/blog';
 
 import { NextResponse } from 'next/server';
 
-import { kebabCase } from 'es-toolkit';
-
 import { _mock } from 'src/_mock/_mock';
-import { POST_PUBLISH_OPTIONS } from 'src/_mock/_blog';
-import type { IPostItem } from 'src/types/blog';
 
 // ----------------------------------------------------------------------
 
 // Generate mock post details
 function generateMockPost(title: string): IPostItem | null {
   // Generate a consistent post based on title (kebabCase)
-  const index = parseInt(title.slice(-1), 10) || 0;
+  // Use a simple hash of the title to get a consistent index
+  let hash = 0;
+  for (let i = 0; i < title.length; i++) {
+    const char = title.charCodeAt(i);
+    hash = ((hash * 31) + char) % 2147483647; // Simple hash without bitwise operations
+  }
+  const index = Math.abs(hash) % 20; // Use modulo to get index 0-19
   const postTitle = _mock.postTitle(index);
   const tags = ['Technology', 'Design', 'Business', 'Lifestyle', 'Travel'].slice(0, (index % 3) + 2);
   const publish = index % 5 === 0 ? 'draft' : 'published';
@@ -38,25 +41,25 @@ function generateMockPost(title: string): IPostItem | null {
     totalFavorites,
     metaKeywords: tags,
     metaDescription: _mock.sentence(index) + ' ' + _mock.description(index),
-    comments: Array.from({ length: Math.min(totalComments, 10) }, (_, commentIndex) => ({
-      id: _mock.id(index + commentIndex + 100),
-      name: _mock.fullName(index + commentIndex),
-      message: _mock.sentence(index + commentIndex) + ' ' + _mock.description(index + commentIndex),
-      avatarUrl: _mock.image.avatar(index + commentIndex),
-      postedAt: _mock.time(index + commentIndex),
-      users: Array.from({ length: 2 }, (_, userIndex) => ({
-        id: _mock.id(index + commentIndex + userIndex + 200),
-        name: _mock.fullName(index + commentIndex + userIndex),
-        avatarUrl: _mock.image.avatar(index + commentIndex + userIndex),
+    comments: Array.from({ length: Math.min(totalComments, 10) }, (_, commentIdx) => ({
+      id: _mock.id(index + commentIdx + 100),
+      name: _mock.fullName(index + commentIdx),
+      message: _mock.sentence(index + commentIdx) + ' ' + _mock.description(index + commentIdx),
+      avatarUrl: _mock.image.avatar(index + commentIdx),
+      postedAt: _mock.time(index + commentIdx),
+      users: Array.from({ length: 2 }, (__, userIdx) => ({
+        id: _mock.id(index + commentIdx + userIdx + 200),
+        name: _mock.fullName(index + commentIdx + userIdx),
+        avatarUrl: _mock.image.avatar(index + commentIdx + userIdx),
       })),
-      replyComment: commentIndex % 2 === 0
+      replyComment: commentIdx % 2 === 0
         ? [
             {
-              id: _mock.id(index + commentIndex + 300),
-              userId: _mock.id(index + commentIndex + 1),
-              message: _mock.sentence(index + commentIndex + 10),
-              tagUser: _mock.fullName(index + commentIndex + 1),
-              postedAt: _mock.time(index + commentIndex + 1),
+              id: _mock.id(index + commentIdx + 300),
+              userId: _mock.id(index + commentIdx + 1),
+              message: _mock.sentence(index + commentIdx + 10),
+              tagUser: _mock.fullName(index + commentIdx + 1),
+              postedAt: _mock.time(index + commentIdx + 1),
             },
           ]
         : [],
@@ -65,9 +68,9 @@ function generateMockPost(title: string): IPostItem | null {
       name: _mock.fullName(index),
       avatarUrl: _mock.image.avatar(index),
     },
-    favoritePerson: Array.from({ length: Math.min(totalFavorites, 10) }, (_, favIndex) => ({
-      name: _mock.fullName(index + favIndex),
-      avatarUrl: _mock.image.avatar(index + favIndex),
+    favoritePerson: Array.from({ length: Math.min(totalFavorites, 10) }, (__, favIdx) => ({
+      name: _mock.fullName(index + favIdx),
+      avatarUrl: _mock.image.avatar(index + favIdx),
     })),
   };
 }

@@ -34,6 +34,7 @@ cat ~/.ssh/github_actions_deploy
 ```
 
 **Важно:** Скопируйте весь вывод, включая строки:
+
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 ...
@@ -47,22 +48,29 @@ cat ~/.ssh/github_actions_deploy
 3. Нажмите **New repository secret** и добавьте:
 
 ### SSH_HOST
+
 ```
 212.193.24.244
 ```
+
 или
+
 ```
 dev-dateh.ru
 ```
+
 (если у вас настроен домен)
 
 ### SSH_USER
+
 ```
 root
 ```
 
 ### SSH_PRIVATE_KEY
+
 Вставьте весь приватный ключ, который скопировали на шаге 2:
+
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 [весь ключ]
@@ -70,6 +78,7 @@ root
 ```
 
 ### SSH_PORT
+
 ```
 22
 ```
@@ -134,6 +143,7 @@ cat ~/.ssh/github_actions_deploy.pub | ssh root@212.193.24.244 "mkdir -p ~/.ssh 
 ### Ошибка: Host key verification failed
 
 Добавьте опцию в workflow для пропуска проверки (не рекомендуется для продакшна, но для теста можно):
+
 ```yaml
 - name: Deploy to server
   uses: appleboy/ssh-action@v1.0.3

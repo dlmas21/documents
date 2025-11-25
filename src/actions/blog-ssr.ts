@@ -11,7 +11,11 @@ export async function getPosts() {
 // ----------------------------------------------------------------------
 
 export async function getPost(title: string) {
-  const URL = title ? `${endpoints.post.details}?title=${title}` : '';
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const URL = `${endpoints.post.details}?title=${encodeURIComponent(title)}`;
 
   const res = await axios.get(URL);
 
@@ -21,7 +25,11 @@ export async function getPost(title: string) {
 // ----------------------------------------------------------------------
 
 export async function getLatestPosts(title: string) {
-  const URL = title ? `${endpoints.post.latest}?title=${title}` : '';
+  if (!title) {
+    throw new Error('Title is required');
+  }
+
+  const URL = `${endpoints.post.latest}?title=${encodeURIComponent(title)}`;
 
   const res = await axios.get(URL);
 

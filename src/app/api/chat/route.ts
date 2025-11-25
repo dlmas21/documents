@@ -1,9 +1,10 @@
 import type { NextRequest } from 'next/server';
+import type { BadgeProps } from '@mui/material/Badge';
+import type { IChatMessage, IChatParticipant, IChatConversation } from 'src/types/chat';
 
 import { NextResponse } from 'next/server';
 
 import { _mock } from 'src/_mock/_mock';
-import type { IChatParticipant, IChatConversation, IChatMessage } from 'src/types/chat';
 
 // ----------------------------------------------------------------------
 
@@ -18,12 +19,16 @@ function generateMockContacts(): IChatParticipant[] {
     avatarUrl: _mock.image.avatar(index),
     phoneNumber: _mock.phoneNumber(index),
     lastActivity: _mock.time(index),
-    status: (index % 3 === 0 ? 'online' : index % 3 === 1 ? 'away' : 'busy') as 'online' | 'away' | 'busy' | 'offline',
+    status: (index % 3 === 0 ? 'dot' : 'standard') as BadgeProps['variant'],
   }));
 }
 
 // Generate mock messages
-function generateMockMessages(conversationId: string, count: number = 10, offset: number = 0): IChatMessage[] {
+function generateMockMessages(
+  conversationId: string,
+  count: number = 10,
+  offset: number = 0
+): IChatMessage[] {
   return Array.from({ length: count }, (_, index) => {
     const globalIndex = offset * 1000 + index;
     return {
@@ -32,19 +37,20 @@ function generateMockMessages(conversationId: string, count: number = 10, offset
       senderId: index % 2 === 0 ? 'current-user-id' : _mock.id(globalIndex % 5),
       contentType: 'text',
       createdAt: _mock.time(globalIndex),
-      attachments: index % 4 === 0
-        ? [
-            {
-              name: `attachment-${globalIndex}.pdf`,
-              size: 1024 * 1024 * (index + 1),
-              type: 'application/pdf',
-              path: `/attachments/${conversationId}/${globalIndex}`,
-              preview: _mock.image.cover(globalIndex),
-              createdAt: _mock.time(globalIndex),
-              modifiedAt: _mock.time(globalIndex),
-            },
-          ]
-        : [],
+      attachments:
+        index % 4 === 0
+          ? [
+              {
+                name: `attachment-${globalIndex}.pdf`,
+                size: 1024 * 1024 * (index + 1),
+                type: 'application/pdf',
+                path: `/attachments/${conversationId}/${globalIndex}`,
+                preview: _mock.image.cover(globalIndex),
+                createdAt: _mock.time(globalIndex),
+                modifiedAt: _mock.time(globalIndex),
+              },
+            ]
+          : [],
     };
   });
 }
@@ -152,4 +158,3 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
-

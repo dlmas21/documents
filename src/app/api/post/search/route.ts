@@ -1,10 +1,9 @@
 import type { NextRequest } from 'next/server';
+import type { IPostItem } from 'src/types/blog';
 
 import { NextResponse } from 'next/server';
 
 import { _mock } from 'src/_mock/_mock';
-import { POST_PUBLISH_OPTIONS } from 'src/_mock/_blog';
-import type { IPostItem } from 'src/types/blog';
 
 // ----------------------------------------------------------------------
 

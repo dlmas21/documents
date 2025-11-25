@@ -1,12 +1,10 @@
 import type { NextRequest } from 'next/server';
-
-import { NextResponse } from 'next/server';
+import type { IPostItem } from 'src/types/blog';
 
 import { kebabCase } from 'es-toolkit';
+import { NextResponse } from 'next/server';
 
 import { _mock } from 'src/_mock/_mock';
-import { POST_PUBLISH_OPTIONS } from 'src/_mock/_blog';
-import type { IPostItem } from 'src/types/blog';
 
 // ----------------------------------------------------------------------
 
@@ -43,9 +41,9 @@ function generateMockLatestPosts(excludeTitle?: string): IPostItem[] {
         name: _mock.fullName(index),
         avatarUrl: _mock.image.avatar(index),
       },
-      favoritePerson: Array.from({ length: Math.min(totalFavorites, 3) }, (_, favIndex) => ({
-        name: _mock.fullName(index + favIndex),
-        avatarUrl: _mock.image.avatar(index + favIndex),
+      favoritePerson: Array.from({ length: Math.min(totalFavorites, 3) }, (__, favIdx) => ({
+        name: _mock.fullName(index + favIdx),
+        avatarUrl: _mock.image.avatar(index + favIdx),
       })),
     };
   }).filter((post) => !excludeTitle || kebabCase(post.title) !== excludeTitle);

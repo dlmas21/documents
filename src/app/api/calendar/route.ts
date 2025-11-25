@@ -1,10 +1,10 @@
 import type { NextRequest } from 'next/server';
+import type { ICalendarEvent } from 'src/types/calendar';
 
 import { NextResponse } from 'next/server';
 
 import { _mock } from 'src/_mock/_mock';
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
-import type { ICalendarEvent } from 'src/types/calendar';
 
 // ----------------------------------------------------------------------
 

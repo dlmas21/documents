@@ -18,7 +18,15 @@ axiosInstance.interceptors.request.use(
   (config) => {
     // If URL starts with /api/, don't use baseURL (it's a local Next.js API route)
     if (config.url?.startsWith('/api/')) {
-      config.baseURL = '';
+      // For server-side requests, use full URL
+      if (typeof window === 'undefined') {
+        // Server-side: use localhost or the configured server URL
+        const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:8082';
+        config.baseURL = serverUrl;
+      } else {
+        // Client-side: use relative URL
+        config.baseURL = '';
+      }
     }
     return config;
   },
