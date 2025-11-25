@@ -60,7 +60,7 @@ jobs:
             git pull origin main || git pull origin master
 
             echo "📦 Installing dependencies..."
-            npm ci --production
+            npm ci
 
             echo "🔨 Building application..."
             NODE_OPTIONS='--max-old-space-size=3072' npm run build:prod
