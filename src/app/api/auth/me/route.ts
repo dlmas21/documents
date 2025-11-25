@@ -1,4 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+import { NextResponse } from 'next/server';
 
 import { _mock } from 'src/_mock/_mock';
 import { _userList } from 'src/_mock/_user';
