@@ -1,0 +1,56 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main # Измените на вашу основную ветку
+  workflow_dispatch: # Позволяет запускать вручную из GitHub UI
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build:prod
+        env:
+          NODE_OPTIONS: "--max-old-space-size=3072"
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            cd /var/documents
+
+            echo "📥 Pulling latest changes..."
+            git pull origin main || git pull origin master
+
+            echo "📦 Installing dependencies..."
+            npm ci --production
+
+            echo "🔨 Building application..."
+            NODE_OPTIONS='--max-old-space-size=3072' npm run build:prod
+
+            echo "🔄 Reloading PM2..."
+            pm2 reload ecosystem.config.js --update-env || pm2 restart ecosystem.config.js --update-env
+            pm2 save
+
+            echo "✅ Deployment completed successfully!"
