@@ -14,6 +14,10 @@ import { PostDetailsHomeView } from 'src/sections/blog/view';
 
 export const metadata: Metadata = { title: `Post details - ${CONFIG.appName}` };
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type Props = {
   params: Promise<{ title: string }>;
 };

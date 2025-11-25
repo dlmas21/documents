@@ -55,20 +55,21 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Only show "build time" message if we're actually in build phase
-    // Check if we're in build by looking for Next.js build indicators
-    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
-                       process.env.NEXT_PHASE === 'phase-development-build';
-    
-    if (isBuildTime && (error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND' || error.message?.includes('Invalid URL'))) {
-      const message = 'API route not available during build time';
-      console.error('Axios error (build time):', message);
-      return Promise.reject(new Error(message));
-    }
-    
-    // For runtime errors, provide the actual error message
+    // Provide the actual error message
     const message = error?.response?.data?.message || error?.message || 'Something went wrong!';
-    console.error('Axios error:', message, error.code ? `(${error.code})` : '');
+
+    // Log error details for debugging (but don't expose sensitive info in production)
+    if (process.env.NODE_ENV === 'development') {
+      console.error(
+        'Axios error:',
+        message,
+        error.code ? `(${error.code})` : '',
+        error.config?.url ? `[${error.config.url}]` : ''
+      );
+    } else {
+      console.error('Axios error:', message);
+    }
+
     return Promise.reject(new Error(message));
   }
 );

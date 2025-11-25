@@ -13,6 +13,10 @@ import { ProductShopDetailsView } from 'src/sections/product/view';
 
 export const metadata: Metadata = { title: `Product details - ${CONFIG.appName}` };
 
+// Force dynamic rendering to avoid static generation issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 type Props = {
   params: Promise<{ id: string }>;
 };
