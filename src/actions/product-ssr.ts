@@ -11,7 +11,11 @@ export async function getProducts() {
 // ----------------------------------------------------------------------
 
 export async function getProduct(id: string) {
-  const URL = id ? `${endpoints.product.details}?productId=${id}` : '';
+  if (!id) {
+    throw new Error('Product ID is required');
+  }
+
+  const URL = `${endpoints.product.details}?productId=${encodeURIComponent(id)}`;
 
   const res = await axios.get(URL);
 

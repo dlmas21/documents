@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { IProductItem } from 'src/types/product';
 
+import { notFound } from 'next/navigation';
+
 import { CONFIG } from 'src/global-config';
 import axios, { endpoints } from 'src/lib/axios';
 import { getProduct } from 'src/actions/product-ssr';
@@ -18,9 +20,18 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { id } = await params;
 
-  const { product } = await getProduct(id);
+  try {
+    const { product } = await getProduct(id);
 
-  return <ProductDetailsView product={product} />;
+    if (!product) {
+      notFound();
+    }
+
+    return <ProductDetailsView product={product} />;
+  } catch (error) {
+    console.error('Failed to load product:', error);
+    notFound();
+  }
 }
 
 // ----------------------------------------------------------------------

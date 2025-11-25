@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { IPostItem } from 'src/types/blog';
 
 import { kebabCase } from 'es-toolkit';
+import { notFound } from 'next/navigation';
 
 import { CONFIG } from 'src/global-config';
 import { getPost } from 'src/actions/blog-ssr';
@@ -20,9 +21,18 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { title } = await params;
 
-  const { post } = await getPost(title);
+  try {
+    const { post } = await getPost(title);
 
-  return <PostEditView post={post} />;
+    if (!post) {
+      notFound();
+    }
+
+    return <PostEditView post={post} />;
+  } catch (error) {
+    console.error('Failed to load post for edit:', error);
+    notFound();
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -40,12 +50,12 @@ export default async function Page({ params }: Props) {
  */
 export async function generateStaticParams() {
   try {
-    const res = await axios.get(endpoints.post.list);
-    const data: IPostItem[] = CONFIG.isStaticExport ? res.data.posts : res.data.posts.slice(0, 1);
+  const res = await axios.get(endpoints.post.list);
+  const data: IPostItem[] = CONFIG.isStaticExport ? res.data.posts : res.data.posts.slice(0, 1);
 
-    return data.map((post) => ({
-      title: kebabCase(post.title),
-    }));
+  return data.map((post) => ({
+    title: kebabCase(post.title),
+  }));
   } catch (error) {
     console.error('Failed to generate static params for post edit:', error);
     return [];

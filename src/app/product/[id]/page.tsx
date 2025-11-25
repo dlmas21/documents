@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import type { IProductItem } from 'src/types/product';
 
+import { notFound } from 'next/navigation';
+
 import { CONFIG } from 'src/global-config';
 import axios, { endpoints } from 'src/lib/axios';
 import { getProduct } from 'src/actions/product-ssr';
@@ -18,9 +20,18 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { id } = await params;
 
-  const { product } = await getProduct(id);
+  try {
+    const { product } = await getProduct(id);
 
-  return <ProductShopDetailsView product={product} />;
+    if (!product) {
+      notFound();
+    }
+
+    return <ProductShopDetailsView product={product} />;
+  } catch (error) {
+    console.error('Failed to load product:', error);
+    notFound();
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -38,14 +49,14 @@ export default async function Page({ params }: Props) {
  */
 export async function generateStaticParams() {
   try {
-    const res = await axios.get(endpoints.product.list);
-    const data: IProductItem[] = CONFIG.isStaticExport
-      ? res.data.products
-      : res.data.products.slice(0, 1);
+  const res = await axios.get(endpoints.product.list);
+  const data: IProductItem[] = CONFIG.isStaticExport
+    ? res.data.products
+    : res.data.products.slice(0, 1);
 
-    return data.map((product) => ({
-      id: product.id,
-    }));
+  return data.map((product) => ({
+    id: product.id,
+  }));
   } catch (error) {
     console.error('Failed to generate static params for product:', error);
     return [];
